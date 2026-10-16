@@ -98,10 +98,10 @@ tile_set = SubResource("TileSet_7xav5")
 position = Vector2(299, 37)
 
 [node name="spawnHost" type="Marker2D" parent="." unique_id=1889776192]
-position = Vector2(492, 220)
+position = Vector2(504, 208)
 
 [node name="spawnClient" type="Marker2D" parent="." unique_id=2069718182]
-position = Vector2(166, 232)
+position = Vector2(102, 203)
 
 [node name="Players" type="Node2D" parent="." unique_id=758376670]
 

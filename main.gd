@@ -3,6 +3,8 @@ extends Node2D
 const PORT := 7000
 const MAX_CLIENTS := 1
 const PLAYER_SCENE := preload("res://player.tscn")
+const PLAYER_1_SPAWN := Vector2(504,272)
+const PLAYER_2_SPAWN := Vector2(104,272)
 
 @onready var players: Node2D = $Players
 @onready var status_label: Label = $CanvasLayer/Interface/StatusLabel
@@ -18,6 +20,12 @@ func _ready() -> void:
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
+
+func get_spawn_position(player_id: int) -> Vector2:
+	if player_id == 1:
+		return PLAYER_1_SPAWN
+	
+	return PLAYER_2_SPAWN
 
 func host_game() -> void:
 	var peer := ENetMultiplayerPeer.new()
@@ -67,8 +75,16 @@ func spawn_player(id: int) -> void:
 	
 	var player := PLAYER_SCENE.instantiate()
 	player.name = str(id)
-	player.position = $spawnHost.position if id == 1 else $spawnClient.position
+	#player.position = $spawnHost.position if id == 1 else $spawnClient.position
+	player.position = get_spawn_position(id)
+	
 	players.add_child(player, true)
+	print(
+		"Player ",
+		id,
+		" criado em ",
+		player.position
+	)
 
 func _on_peer_disconnected(id: int) -> void:
 	var player := players.get_node_or_null(str(id))
@@ -99,12 +115,8 @@ func announce_winner(winner_id: int) -> void:
 func reset_round() -> void:
 	for player in players.get_children():
 		var player_id: int = player.name.to_int()
-	
-		if player_id == 1:
-			player.position = $spawnHost.position
-		else:
-			player.position = $spawnClient.position
-
+		player.position = get_spawn_position(player_id)
+		
 		player.velocity = Vector2.ZERO
 		player.set_physics_process(true)
 
