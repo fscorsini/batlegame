@@ -6,6 +6,9 @@ const PLAYER_SCENE := preload("res://player.tscn")
 
 @onready var players: Node2D = $Players
 @onready var status_label: Label = $CanvasLayer/Interface/StatusLabel
+@onready var host_button: Button = $CanvasLayer/Interface/HostButton
+@onready var join_button: Button = $CanvasLayer/Interface/JoinButton
+@onready var address_line_edit: LineEdit = $CanvasLayer/Interface/AddressLineEdit
 
 var match_finished := false
 
@@ -23,6 +26,7 @@ func host_game() -> void:
 		status_label.text = "Não foi possível criar o servidor"
 		return
 	multiplayer.multiplayer_peer = peer
+	set_connection_controls_enabled(false)
 	status_label.text = "Servidor criado. Aguardando jogador"
 	spawn_player(1)
 
@@ -32,8 +36,11 @@ func join_game(address: String) -> void:
 	if error != OK:
 		status_label.text = "Erro ao iniciar conexão: %s" % error_string(error)
 		print("Erro create_client: ", error_string(error))
+		set_connection_controls_enabled(true)
 		return
+	
 	multiplayer.multiplayer_peer = peer
+	set_connection_controls_enabled(false)
 	status_label.text = "Conectando a %s:%d" % [address, PORT]
 
 
@@ -68,7 +75,6 @@ func _on_peer_disconnected(id: int) -> void:
 	if player != null:
 		player.queue_free()
 	
-
 
 func _on_portal_body_entered(body: Node2D) -> void:
 	if not multiplayer.is_server() or match_finished:
@@ -115,6 +121,31 @@ func _on_connected_to_server() -> void:
 
 func _on_connection_failed() -> void:
 	status_label.text = "Falha na conexão"
+	multiplayer.multiplayer_peer = null
+	set_connection_controls_enabled(true)
 
 func _on_server_disconnected() -> void:
 	status_label.text = "Servidor desconectado"
+	multiplayer.multiplayer_peer = null
+	set_connection_controls_enabled(true)
+	
+func set_connection_controls_enabled(enabled: bool) -> void:
+	host_button.disabled = not enabled
+	join_button.disabled = not enabled
+	address_line_edit.editable = enabled
+	
+	host_button.visible = enabled
+	join_button.visible = enabled
+	address_line_edit.visible = enabled
+
+	if enabled:
+		host_button.focus_mode = Control.FOCUS_ALL
+		join_button.focus_mode = Control.FOCUS_ALL
+		address_line_edit.focus_mode = Control.FOCUS_ALL
+	else:
+		host_button.focus_mode = Control.FOCUS_NONE
+		join_button.focus_mode = Control.FOCUS_NONE
+		address_line_edit.focus_mode = Control.FOCUS_NONE
+
+		# Remove o foco de qualquer controle da interface.
+		get_viewport().gui_release_focus()
