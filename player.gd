@@ -4,6 +4,7 @@ const SPEED := 260.0
 const JUMP_VELOCITY := -430.0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var camera: Camera2D = $Camera2D
 var spaw_position := Vector2.ZERO
 
 func _enter_tree() -> void:
@@ -12,6 +13,9 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	spaw_position = global_position
 	modulate = Color("ff7f50") if get_multiplayer_authority() == 1 else Color("00bfff")
+	camera.enabled = is_multiplayer_authority()
+	if camera.enabled:
+		camera.make_current()
 
 func _physics_process(delta: float) -> void:
 	if not is_multiplayer_authority():
