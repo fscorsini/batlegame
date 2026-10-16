@@ -101,7 +101,7 @@ position = Vector2(299, 37)
 position = Vector2(492, 220)
 
 [node name="spawnClient" type="Marker2D" parent="." unique_id=2069718182]
-position = Vector2(137, 232)
+position = Vector2(166, 232)
 
 [node name="Players" type="Node2D" parent="." unique_id=758376670]
 
